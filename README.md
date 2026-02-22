@@ -19,4 +19,4 @@ Allows you to add, view, and delete tasks directly from the command line.
 Clone the repository:
 
 ```bash
-git clone
+git clone https://github.com/HjruRvlq3/cli-to-do-list.git
