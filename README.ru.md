@@ -19,4 +19,4 @@
 1. Склонируйте репозиторий:
 
 ```bash
-git clone
+git clone https://github.com/HjruRvlq3/cli-to-do-list.git
