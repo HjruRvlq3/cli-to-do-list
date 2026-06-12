@@ -1,7 +1,7 @@
 package task
 
 func New(newTaskText string) Task {
-	newTask := Task{1, newTaskText, false}
+	newTask := Task{0, newTaskText, false}
 	return newTask
 }
 

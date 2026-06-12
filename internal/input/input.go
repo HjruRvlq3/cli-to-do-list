@@ -1,40 +1,91 @@
+// обработка ввода
+
 package input
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/HjruRvlq3/cli-to-do-list/internal/output"
 	"github.com/HjruRvlq3/cli-to-do-list/internal/service"
+	clearscreen "github.com/HjruRvlq3/cli-to-do-list/pkg/clearScreen"
 )
 
 func MovManager() {
-	var mov string
+	var (
+		move string
+		err  error
+	)
 
-	fmt.Scan(&mov)
+	fmt.Printf("Go to-do \n\n")
 
-	switch mov {
-	case "create":
-		err := create()
+	for move != "exit" && move != "ex" {
+
+		move, err = readInput()
 		if err != nil {
-			fmt.Println("Ошибка", err)
-		} else {
-			output.ConsoleClean()
-			fmt.Printf("\nЗадача добавлена\n")
+			fmt.Println(err)
+			continue
+		}
+
+		if move == "" {
+			continue
+		}
+
+		switch move {
+		case "list", "ls":
+			output.PrintList()
+		case "add", "a":
+			clearscreen.ClearScreen()
+			err = addTask()
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+		case "help", "h":
+			clearscreen.ClearScreen()
+			output.Help()
+		case "exit", "ex":
+			clearscreen.ClearScreen()
+			output.Exit()
+			return
+		default:
+			clearscreen.ClearScreen()
+			output.Err(move)
 		}
 	}
 }
 
-func create() error {
-	output.ConsoleClean()
-	fmt.Printf("\nВведите текст задачи в одну строку:\n")
+func readInput() (string, error) {
+	reader := bufio.NewReader(os.Stdin)
+	in, err := reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+	text := strings.TrimSpace(strings.ToLower(in))
+	return text, nil
+}
 
-	var newTaskText string
-	fmt.Scan(&newTaskText)
+func addTask() error {
+	var (
+		newTaskText string
+		err         error
+	)
 
-	err := service.Create(newTaskText)
+	clearscreen.ClearScreen()
+	fmt.Printf("\nВведите текст задачи в одну строку:\n\n")
+
+	newTaskText, err = readInput()
 	if err != nil {
 		return err
 	}
+
+	err = service.AddTask(newTaskText)
+	if err != nil {
+		return err
+	}
+	output.Success(newTaskText, true)
 
 	return nil
 }
