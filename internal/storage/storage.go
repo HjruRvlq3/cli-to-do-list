@@ -2,6 +2,7 @@ package storage
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
@@ -10,7 +11,15 @@ import (
 
 const path = "data/data.json"
 
-func WriteTask(newTask task.Task) error {
+type TaskRepository interface {
+	WriteTask(task.Task) error
+	PrintList() error
+	Done(int) error
+}
+
+type JSONRepository struct{}
+
+func (JSONRepository) WriteTask(newTask task.Task) error {
 
 	var (
 		tasks []task.Task
@@ -18,6 +27,9 @@ func WriteTask(newTask task.Task) error {
 	)
 
 	tasks, err = parsList()
+	if err != nil {
+		return err
+	}
 
 	newIndex := createIndex(&tasks)
 	newTask.ID = newIndex
@@ -37,15 +49,35 @@ func WriteTask(newTask task.Task) error {
 	return nil
 }
 
-func PrintList() error {
+func (JSONRepository) PrintList() error {
 	tasks, err := parsList()
 	if err != nil {
 		return err
 	}
 	for _, i := range tasks {
-		fmt.Printf("%d. %s\n", i.ID, i.Text)
+		fmt.Printf("%d. %s ", i.ID, i.Text)
+		if i.Done {
+			fmt.Printf("[✓]\n")
+		} else {
+			fmt.Printf("[ ]\n")
+		}
 	}
 	return nil
+}
+
+func (JSONRepository) Done(number int) error {
+	tasks, err := parsList()
+	if err != nil {
+		return err
+	}
+	for i := range tasks {
+		if tasks[i].ID == number {
+			tasks[i].Done = true
+			return nil
+		}
+	}
+	err = errors.New("задачи с таким номером нет")
+	return err
 }
 
 func parsList() ([]task.Task, error) {

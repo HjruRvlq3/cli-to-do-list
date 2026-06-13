@@ -44,6 +44,9 @@ func Success(taskText string, move bool) {
 
 func PrintList() {
 	clearscreen.ClearScreen()
-	storage.PrintList()
+
+	newJSONRepository := storage.JSONRepository{}
+	newJSONRepository.PrintList()
+
 	fmt.Printf("\n")
 }
